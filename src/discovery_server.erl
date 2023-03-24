@@ -12,7 +12,6 @@
 start() ->
   gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-%вместо discovery на гитхабе node()
 register(User) ->
   gen_server:call({?MODULE, node()}, {register, User}).
 
@@ -28,8 +27,6 @@ init([]) ->
 
 handle_call({register, User}, _From, State) ->
   NewUsers = [User | State#state.users],
-  %обновить лист подключений у всех пиров
-
   lists:foreach(
     fun(Connection) ->
       chat_server:refresh_connections(Connection, lists:delete(Connection, NewUsers))

@@ -146,7 +146,6 @@ send_to_all(Message, Users) ->
     chat_server:accept(self(), Other, EncryptedMessage)
                 end,
     Users),
-  % Insert the message in the sender's ETS table
   chat_server:insert_message(self(), Message).
 
 to_formatted_time(Timestamp) ->
