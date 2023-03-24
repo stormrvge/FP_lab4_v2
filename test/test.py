@@ -5,10 +5,10 @@ import time
 
 def main():
     # Start an Erlang shell
-    erl_process_discovery = subprocess.Popen(['erl', '-sname', 'discovery', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    erl_process_alice = subprocess.Popen(['erl', '-sname', 'alice', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    erl_process_bob = subprocess.Popen(['erl', '-sname', 'bob', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    erl_process_charlie = subprocess.Popen(['erl', '-sname', 'charlie', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    erl_process_discovery = subprocess.Popen(['erl', '-name', 'discovery@127.0.0.1', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    erl_process_alice = subprocess.Popen(['erl', '-name', 'alice@127.0.0.1', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    erl_process_bob = subprocess.Popen(['erl', '-name', 'bob@127.0.0.1', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    erl_process_charlie = subprocess.Popen(['erl', '-name', 'charlie@127.0.0.1', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     init_nodes(erl_process_discovery, erl_process_alice, erl_process_bob, erl_process_charlie)
     time.sleep(1)
