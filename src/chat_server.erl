@@ -117,6 +117,8 @@ handle_cast({insert_message, {User, Message}}, State) -> % Update the pattern ma
 handle_cast(print_history, State) ->
   EtsList = ets:tab2list(State#state.ets),
 
+  SortedEtsList = lists:sort(fun({{_, Timestamp1}, _}, {{_, Timestamp2}, _}) -> Timestamp1 =< Timestamp2 end, EtsList),
+
   io:format("The history~n"),
 
   _ = lists:foreach(
@@ -124,7 +126,7 @@ handle_cast(print_history, State) ->
       FormattedTime = to_formatted_time(Timestamp),
       io:format("[~s] From ~w Message ~s~n", [FormattedTime, From, Message])
     end,
-    EtsList
+    SortedEtsList
   ),
 
   {noreply, State}.
