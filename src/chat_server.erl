@@ -5,7 +5,7 @@
 -export([start/0, send/2, accept/3, refresh_connections/2, get_connections/1,  handshake/1, ping/1, print_history/1, get_messages/1, leave/1]).
 
 %% gen_server callbacks
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3, insert_message/2]).
 
 -record(state, {connections = [], ets = undefined, public_key = undefined, private_key = undefined}).
 
@@ -14,6 +14,9 @@ start() ->
 
 send(User, Message) ->
   gen_server:cast(User, {send, User, Message}).
+
+insert_message(User, Message) ->
+  gen_server:cast(User, {insert_message, {User, Message}}).
 
 refresh_connections(User, Connections) ->
   gen_server:cast(User, {refresh_connections, Connections}).
@@ -105,12 +108,17 @@ handle_cast({chat_message, From, EncryptedMessage}, State) ->
 handle_cast({refresh_connections, Connections}, #state{connections = _, ets = Ets, public_key = PublicKey, private_key = PrivateKey}) ->
   {noreply, #state{connections = Connections, ets = Ets, public_key = PublicKey, private_key = PrivateKey}};
 
+handle_cast({insert_message, {User, Message}}, State) -> % Update the pattern match
+  Timestamp = erlang:system_time(millisecond),
+  ets:insert_new(State#state.ets, {{User, Timestamp}, Message}),
+  {noreply, State};
+
 handle_cast(print_history, State) ->
   EtsList = ets:tab2list(State#state.ets),
 
   io:format("The history~n"),
 
-  lists:foreach(
+  _ = lists:foreach(
     fun({{From, Timestamp}, Message}) ->
       UTCTime = calendar:system_time_to_universal_time(Timestamp, millisecond),
       LocalTime = calendar:universal_time_to_local_time(UTCTime),
@@ -133,14 +141,15 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% Helper functions
 send_to_all(User, Message, Users) ->
-  lists:foreach(fun(Other) -> 
+  lists:foreach(fun(Other) ->
     %Логику проверки произведен ли уже обмен ключами, если да  то зачем еще раз обмениваться для этого нужно создать map где ключ pid, значение - public_key
     UserPublicKey = chat_server:handshake(Other),
     EncryptedMessage = crypto:public_encrypt(rsa, list_to_binary(Message), UserPublicKey, []),
-    chat_server:accept(User, Other, EncryptedMessage) 
-    end, 
-    Users
-  ).
+    chat_server:accept(User, Other, EncryptedMessage)
+                end,
+    Users),
+  % Insert the message in the sender's ETS table
+  chat_server:insert_message(User, Message).
 
 format_time({{Year, Month, Day}, {Hour, Minute, Second}}) ->
   io_lib:format("~4.10.0B-~2.10.0B-~2.10.0B-~2.10.0B-~2.10.0B-~2.10.0B", [Year, Month, Day, Hour, Minute, Second]).
