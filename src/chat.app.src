@@ -1,0 +1,13 @@
+{application, chat,
+ [
+  {description, "An Erlang P2P chat application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications, [
+   kernel,
+   stdlib,
+   crypto
+  ]},
+  {mod, {chat_app, []}},
+  {env, []}
+ ]}.
