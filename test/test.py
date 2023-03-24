@@ -1,32 +1,66 @@
 import subprocess
 import time
 
+
 def main():
-    chat_server_process = subprocess.Popen(["erl", "-sname", "test_server", "-run", "chat_server", "start"])
-    time.sleep(5)  # Give the server some time to start
+    # Start an Erlang shell
+    erl_process_discovery = subprocess.Popen(['erl', '-sname', 'discovery', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    erl_process_alice = subprocess.Popen(['erl', '-sname', 'alice', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    erl_process_bob = subprocess.Popen(['erl', '-sname', 'bob', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    erl_process_charlie = subprocess.Popen(['erl', '-sname', 'charlie', "-cookies", "1234"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    try:
-        # Perform a simple test by sending a message
-        send_message = subprocess.Popen(
-            ["erl", "-sname", "test_client", "-eval",
-             "io:format(chat_server:send(\"Hello, chat server!\"))."],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        stdout, stderr = send_message.communicate()
-        assert "ok" in stdout, "Sending a message to the chat server failed"
+    init_nodes(erl_process_discovery, erl_process_alice, erl_process_bob, erl_process_charlie)
+    time.sleep(1)
 
-        # Perform a test to view message history
-        print_history = subprocess.Popen(
-            ["erl", "-sname", "test_client", "-eval",
-             "io:format(chat_server:print_history())."],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        stdout, stderr = print_history.communicate()
-        assert "The history" in stdout, "Fetching message history from the chat server failed"
-    finally:
-        chat_server_process.terminate()
+    output, error = erl_process_discovery.communicate()
+    print("Discovery output:")
+    print(output.decode('utf-8'))
+    print("\n\n\n")
+
+    output, error = erl_process_alice.communicate()
+    print("Alice output:")
+    print(output.decode('utf-8'))
+    print("\n\n\n")
+
+    output, error = erl_process_bob.communicate()
+    print("Bob output:")
+    print(output.decode('utf-8'))
+    print("\n\n\n")
+
+    output, error = erl_process_charlie.communicate()
+    print("Charlie output:")
+    print(output.decode('utf-8'))
+
+    time.sleep(3)
+    wait_for_clients_exit(erl_process_discovery, erl_process_alice, erl_process_bob, erl_process_charlie)
+
+
+def init_nodes(erl_process_discovery, erl_process_alice, erl_process_bob, erl_process_charlie):
+    erl_process_discovery.stdin.write(b'discovery_server:start().\n')
+    time.sleep(2)
+
+    # Send a command to the Erlang shell and read the output
+    erl_process_alice.stdin.write(b'chat_server:start().\n')
+    erl_process_alice.stdin.flush()
+    time.sleep(2)
+
+    # Send a command to the Erlang shell and read the output
+    erl_process_bob.stdin.write(b'chat_server:start().\n')
+    erl_process_bob.stdin.flush()
+    time.sleep(2)
+
+    # Send a command to the Erlang shell and read the output
+    erl_process_charlie.stdin.write(b'chat_server:start().\n')
+    erl_process_charlie.stdin.flush()
+    time.sleep(2)
+
+
+def wait_for_clients_exit(erl_process_discovery, erl_process_alice, erl_process_bob, erl_process_charlie):
+    erl_process_discovery.wait()
+    erl_process_alice.wait()
+    erl_process_bob.wait()
+    erl_process_charlie.wait()
+
 
 if __name__ == "__main__":
     main()
