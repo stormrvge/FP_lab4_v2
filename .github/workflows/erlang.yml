@@ -30,4 +30,4 @@ jobs:
       - name: Release
         run: rebar3 release
       - name: Run tests
-        run: cd /__w/FP_lab4_v2/FP_lab4_v2/_build/default/rel/lab4_rel/lib/lab4-0.1.0/ebin && ls -l
+        run: cd /__w/FP_lab4_v2/FP_lab4_v2/_build/default/rel/lab4_rel/lib/lab4-0.1.0/ebin && wget https://raw.githubusercontent.com/stormrvge/FP_lab4_v2/master/test/test.py && python test.py

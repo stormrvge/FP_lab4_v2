@@ -14,13 +14,13 @@ start() ->
 
 %вместо discovery на гитхабе node()
 register(User) ->
-  gen_server:call({?MODULE, 'discovery@127.0.0.1'}, {register, User}).
+  gen_server:call({?MODULE, node()}, {register, User}).
 
 unregister(User) ->
-  gen_server:call({?MODULE, 'discovery@127.0.0.1'}, {unregister, User}).
+  gen_server:call({?MODULE, node()}, {unregister, User}).
 
 list() ->
-  gen_server:call({?MODULE, 'discovery@127.0.0.1'}, list).
+  gen_server:call({?MODULE, node()}, list).
 
 %% gen_server callbacks
 init([]) ->
