@@ -1,4 +1,4 @@
-{application, chat,
+{application, lab4,
  [
   {description, "An Erlang P2P chat application"},
   {vsn, "0.1.0"},
