@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(chat_sup).
+-module(lab4_sup).
 
 -behaviour(supervisor).
 

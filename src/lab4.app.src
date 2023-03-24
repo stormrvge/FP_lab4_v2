@@ -8,6 +8,6 @@
    stdlib,
    crypto
   ]},
-  {mod, {chat_app, []}},
+  {mod, {lab4_app, []}},
   {env, []}
  ]}.
